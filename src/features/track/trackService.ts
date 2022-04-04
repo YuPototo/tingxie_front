@@ -1,6 +1,6 @@
 import { emptySplitApi } from '../../app/api'
 
-interface ISentence {
+export interface ISentence {
     startTime: number
     text: string
 }

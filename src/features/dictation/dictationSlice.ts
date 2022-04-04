@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppThunk } from '../../app/store'
-// import { ITrack } from '../track/trackService'
+import type { CheckResult } from '../../textChecker'
 
 // import type { RootState } from '../../app/store'
 
@@ -19,12 +19,14 @@ export interface DictationState {
     dictationStage: DictationStage
     sentenceIndex: number | null
     errorInfo: string | null
+    results: CheckResult[]
 }
 
 const initialState: DictationState = {
     dictationStage: 'uninitialized',
     sentenceIndex: null,
     errorInfo: null,
+    results: [],
 }
 
 export const dictationSlice = createSlice({
@@ -37,29 +39,54 @@ export const dictationSlice = createSlice({
         ) => {
             state.dictationStage = payload
         },
-        setSentenceIndex: (state, { payload }: PayloadAction<number>) => {
+        setSentenceIndex: (
+            state,
+            { payload }: PayloadAction<number | null>
+        ) => {
             state.sentenceIndex = payload
         },
         setErrorInfo: (state, { payload }: PayloadAction<string>) => {
             state.errorInfo = payload
         },
+        addResult: (state, { payload }: PayloadAction<CheckResult>) => {
+            state.results = [...state.results, payload]
+        },
     },
 })
 
-export const { setDictationStage, setSentenceIndex, setErrorInfo } =
+export const { setDictationStage, setSentenceIndex, setErrorInfo, addResult } =
     dictationSlice.actions
 
 /* selectors */
 
 /* thunks */
-export const onPlayEnd = (): AppThunk => async (dispatch, getState) => {
+export const toBeforeDictation = (): AppThunk => async (dispatch, getState) => {
     const state = getState()
     if (state.dictation.dictationStage === 'initialListen') {
         dispatch(setDictationStage('beforeDictation'))
-        setTimeout(() => {
-            dispatch(setDictationStage('dictating'))
-            dispatch(setSentenceIndex(0))
-        }, 2000)
+    }
+}
+
+export const toInitialListen = (): AppThunk => async (dispatch, getState) => {
+    const state = getState()
+    if (state.dictation.dictationStage === 'loadingAudio') {
+        dispatch(setDictationStage('initialListen'))
+    }
+}
+
+export const toDictating = (): AppThunk => async (dispatch, getState) => {
+    const state = getState()
+    if (state.dictation.dictationStage === 'beforeDictation') {
+        dispatch(setDictationStage('dictating'))
+        dispatch(setSentenceIndex(0))
+    }
+}
+
+export const toAfterDictation = (): AppThunk => async (dispatch, getState) => {
+    const state = getState()
+    if (state.dictation.dictationStage === 'dictating') {
+        dispatch(setDictationStage('afterDictation'))
+        dispatch(setSentenceIndex(null))
     }
 }
 

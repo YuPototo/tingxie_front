@@ -1,10 +1,14 @@
 import React from 'react'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { setDictationStage, setSentenceIndex } from './dictationSlice'
+import { useAppSelector } from '../../app/hooks'
+import { ITrack } from '../track/trackService'
+import ResultBySentence from './ResultBySentence'
+import SentenceDictator from './SentenceDictator'
 
-export default function DictatingArea() {
-    const dispatch = useAppDispatch()
-
+type Props = {
+    track: ITrack
+    onFinish: () => void
+}
+export default function DictatingArea({ track, onFinish }: Props) {
     const sentenceIndex = useAppSelector(
         (state) => state.dictation.sentenceIndex
     )
@@ -13,19 +17,23 @@ export default function DictatingArea() {
         return <div>错误：sentence index 不应该是 null</div>
     }
 
+    const hasNext = sentenceIndex + 1 < track.source.length
+
     return (
         <div>
-            <div>正在听写</div>
-            <button
-                onClick={() => dispatch(setSentenceIndex(sentenceIndex + 1))}
-            >
-                下一句
-            </button>
-            <button
-                onClick={() => dispatch(setDictationStage('afterDictation'))}
-            >
-                完成听写
-            </button>
+            <ResultBySentence
+                audioSrc={track.url}
+                transcript={track.source}
+                mode="inDictating"
+                showSource={false}
+            />
+            <SentenceDictator
+                className="my-2"
+                sentenceIndex={sentenceIndex}
+                sourceText={track.source[sentenceIndex].text}
+                hasNext={hasNext}
+                onFinish={onFinish}
+            />
         </div>
     )
 }

@@ -1,49 +1,32 @@
 import React, { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import {
-    onPlayEnd,
+    toBeforeDictation,
     setDictationStage,
     setErrorInfo,
     DictationStage,
+    toInitialListen,
+    toDictating,
+    toAfterDictation,
 } from './dictationSlice'
-import Player, { PlayMode } from '../../components/Player/Player'
 import useLoadData from './useLoadData'
-import { ITrack } from '../track/trackService'
 import DictatingArea from './DictatingArea'
+import CountDown from './CountDown'
+import AdvancePlayer, { PlayMode } from '../../components/Player/AdvancePlayer'
+import getRange from '../../utils/getRange'
+import DictationResult from './DictationResult'
 
 type Props = {
     trackId: string
+    isHome: boolean
+    onFinishHomeTrack: () => void
 }
 
-function setPlayMode(dictationStage: DictationStage): PlayMode {
-    switch (dictationStage) {
-        case 'initialListen':
-        case 'afterDictation':
-            return 'whole'
-        case 'dictating':
-            return 'sentence'
-        default:
-            return 'freeze'
-    }
-}
-
-function getRange(
-    track: ITrack,
-    sentenceIndex: number | null
-): [number, number] {
-    if (sentenceIndex === null) return [-1, -1]
-
-    const rangeMin = track.source[sentenceIndex].startTime
-    let rangeMax: number
-    if (sentenceIndex + 1 >= track.source.length) {
-        rangeMax = -1
-    } else {
-        rangeMax = track.source[sentenceIndex + 1].startTime
-    }
-    return [rangeMin, rangeMax]
-}
-
-export default function DictionTaker({ trackId }: Props) {
+export default function DictionTaker({
+    trackId,
+    isHome,
+    onFinishHomeTrack,
+}: Props) {
     const [track] = useLoadData(trackId)
 
     const dispatch = useAppDispatch()
@@ -61,13 +44,10 @@ export default function DictionTaker({ trackId }: Props) {
         dispatch(setErrorInfo(`听力资源加载错误, 听力链接 ${track?.url}`))
     }, [track?.url, dispatch])
 
-    const handleLoadedMetadata = useCallback(() => {
-        dispatch(setDictationStage('initialListen'))
-    }, [dispatch])
-
-    const handlePlayEnd = useCallback(() => {
-        dispatch(onPlayEnd())
-    }, [dispatch])
+    const handleFinishHomeTrack = () => {
+        onFinishHomeTrack()
+        dispatch(setDictationStage('uninitialized'))
+    }
 
     if (dictationStage === 'uninitialized') {
         return <div>待启动</div>
@@ -87,43 +67,66 @@ export default function DictionTaker({ trackId }: Props) {
     }
 
     if (!track) {
-        return <div>错误：没有 track。而且你不应该看到这个信息</div>
+        return <div>错误：没有 track。</div>
     }
 
     const playMode = setPlayMode(dictationStage)
 
-    const [rangeMin, rangeMax] = getRange(track, sentenceIndex)
+    const [rangeMin, rangeMax] = getRange(track.source, sentenceIndex)
 
     return (
         <div>
             {track && (
                 <>
                     <h2>{track.title}</h2>
-                    <Player
+                    <AdvancePlayer
                         src={track.url}
-                        playMode={playMode}
+                        showPlayHint={dictationStage === 'initialListen'}
                         rangeMin={rangeMin}
                         rangeMax={rangeMax}
-                        sentenceIndex={sentenceIndex}
-                        onEnd={handlePlayEnd}
+                        playMode={playMode}
+                        sentenceIndex={
+                            sentenceIndex !== null ? sentenceIndex : undefined
+                        }
+                        onLoadedMetadata={() => dispatch(toInitialListen())}
+                        onEnded={() => dispatch(toBeforeDictation())}
                         onError={handlePlayerError}
-                        onLoadedMetadata={handleLoadedMetadata}
                     />
                 </>
             )}
 
             {dictationStage === 'loadingAudio' && <div>正在加载听力资源</div>}
             {dictationStage === 'initialListen' && <div>先听一遍听力材料</div>}
-            {dictationStage === 'beforeDictation' && <div>x 秒后开始听写</div>}
+            {dictationStage === 'beforeDictation' && (
+                <CountDown onCountDownFinish={() => dispatch(toDictating())} />
+            )}
 
-            {dictationStage === 'dictating' && <DictatingArea />}
+            {dictationStage === 'dictating' && (
+                <DictatingArea
+                    track={track}
+                    onFinish={() => dispatch(toAfterDictation())}
+                />
+            )}
 
             {dictationStage === 'afterDictation' && (
-                <div>
-                    <div>听写完成啦</div>
-                    <button>完成听写，或下一个听力</button>
-                </div>
+                <DictationResult
+                    track={track}
+                    oneTrackOnly={isHome}
+                    onFinishHomeTrack={handleFinishHomeTrack}
+                />
             )}
         </div>
     )
+}
+
+function setPlayMode(dictationStage: DictationStage): PlayMode {
+    switch (dictationStage) {
+        case 'initialListen':
+        case 'afterDictation':
+            return 'whole'
+        case 'dictating':
+            return 'sentence'
+        default:
+            return 'freeze'
+    }
 }

@@ -1,0 +1,7 @@
+.playButton {
+    visibility: hidden;
+}
+
+.sentence:hover > .playButton {
+    visibility: visible;
+}
