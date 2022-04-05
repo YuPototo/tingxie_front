@@ -56,19 +56,20 @@ export default function ResultBySentence({
             ref={dictionArea}
             className={clsx(maxHeight, 'my-2 overflow-y-auto px-4')}
         >
-            {results.map((checkResult, index) => {
-                return (
-                    <SentenceResult
-                        key={index}
-                        checkResult={checkResult}
-                        sourceText={transcript[index].text}
-                        showSource={showSource}
-                        isPlaying={playingSentenceIndex === index}
-                        onPlay={() => setPlayingSentenceIndex(index)}
-                        onPause={() => setPlayingSentenceIndex(null)}
-                    />
-                )
-            })}
+            {results.length > 0 &&
+                results.map((checkResult, index) => {
+                    return (
+                        <SentenceResult
+                            key={index}
+                            checkResult={checkResult}
+                            sourceText={transcript[index]?.text}
+                            showSource={showSource}
+                            isPlaying={playingSentenceIndex === index}
+                            onPlay={() => setPlayingSentenceIndex(index)}
+                            onPause={() => setPlayingSentenceIndex(null)}
+                        />
+                    )
+                })}
         </div>
     )
 }

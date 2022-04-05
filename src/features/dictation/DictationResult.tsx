@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppSelector } from '../../app/hooks'
 import Button from '../../components/Button'
 import { selectNextTrackIndex } from '../albums/albumService'
 import { ITrack } from '../track/trackService'
-import { resetDictation } from './dictationSlice'
 import ResultBySentence from './ResultBySentence'
 
 type Props = {
@@ -26,11 +25,10 @@ export default function DictationResult({
         selectNextTrackIndex(track.id, albumId)
     )
 
-    const dispatch = useAppDispatch()
+    // const dispatch = useAppDispatch()
     const history = useHistory()
 
     const handleToNext = () => {
-        dispatch(resetDictation())
         if (nextTrackIndex)
             history.replace(`/albums/${albumId}/index/${nextTrackIndex}`)
     }

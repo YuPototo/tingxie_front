@@ -23,7 +23,7 @@ const useLoadData = (trackId: string): [ITrack | undefined] => {
 
     useEffect(() => {
         if (isSuccess) dispatch(setDictationStage('loadingAudio'))
-    }, [isSuccess, dispatch])
+    }, [isSuccess, trackId, dispatch])
 
     return [track]
 }

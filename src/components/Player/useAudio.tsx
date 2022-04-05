@@ -45,15 +45,12 @@ export default function useAudio({
 
     const audioRef = useRef<HTMLAudioElement>()
 
-    /* assign ref value */
-    useEffect(() => {
-        audioRef.current = new Audio(src)
-    }, [src])
-
+    /* some local variables */
     const duration = audioRef.current?.duration ? audioRef.current.duration : 0
     const startTime = rangeMin ? rangeMin : 0
 
     /* callbacks */
+    // 播放时间改变时的 callback
     const handleTimeUpdate = useCallback(() => {
         const audio = audioRef.current
         audio && setCurrentTime(audio.currentTime)
@@ -66,6 +63,17 @@ export default function useAudio({
     }, [rangeMax, onEnded])
 
     /* effects */
+
+    // 设置 ref
+    useEffect(() => {
+        audioRef.current = new Audio(src)
+        return () => {
+            audioRef.current?.pause()
+            audioRef.current = undefined
+        }
+    }, [src])
+
+    // ended 事件: 播放到结束时触发
     useEffect(() => {
         const audio = audioRef.current
         if (audio && onEnded) {
@@ -76,6 +84,7 @@ export default function useAudio({
         }
     }, [onEnded])
 
+    // loadedmetadata 事件
     useEffect(() => {
         const audio = audioRef.current
         if (audio && onLoadedMetadata) {
@@ -86,6 +95,7 @@ export default function useAudio({
         }
     }, [onLoadedMetadata])
 
+    // timeupdate 事件
     useEffect(() => {
         const audio = audioRef.current
         if (audio) audio.ontimeupdate = handleTimeUpdate
@@ -94,11 +104,13 @@ export default function useAudio({
         }
     }, [handleTimeUpdate])
 
+    // 设置 endtime
     useEffect(() => {
         const endTime = calcEndTime(duration, rangeMax)
         endTime && setEndTime(endTime)
     }, [rangeMax, duration])
 
+    // error 事件
     useEffect(() => {
         const audio = audioRef.current
         if (audio && onError) {
@@ -106,7 +118,7 @@ export default function useAudio({
         }
     }, [onError])
 
-    // 触发播放或暂停
+    //* 触发播放或暂停
     useEffect(() => {
         const audio = audioRef.current
         if (audio && isPlaying) {
@@ -122,6 +134,7 @@ export default function useAudio({
         }
     }, [isPlaying, startTime, endTime])
 
+    // 通过外部变量修改 currentTime
     useEffect(() => {
         const audio = audioRef.current
         if (audio && restartTime !== undefined) {

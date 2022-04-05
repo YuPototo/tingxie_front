@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import {
     toBeforeDictation,
@@ -8,6 +8,7 @@ import {
     toInitialListen,
     toDictating,
     toAfterDictation,
+    initDictation,
 } from './dictationSlice'
 import useLoadData from './useLoadData'
 import DictatingArea from './DictatingArea'
@@ -27,9 +28,13 @@ export default function DictionTaker({
     isHome,
     onFinishHomeTrack,
 }: Props) {
-    const [track] = useLoadData(trackId)
-
     const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        dispatch(initDictation())
+    }, [trackId, dispatch])
+
+    const [track] = useLoadData(trackId)
 
     const dictationStage = useAppSelector(
         (state) => state.dictation.dictationStage
@@ -50,7 +55,7 @@ export default function DictionTaker({
     }
 
     if (dictationStage === 'uninitialized') {
-        return <div>待启动</div>
+        return <div>听写组件：待启动</div>
     }
 
     if (dictationStage === 'error') {
