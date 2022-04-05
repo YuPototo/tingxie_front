@@ -43,16 +43,23 @@ export default function useAudio({
     const [endTime, setEndTime] = useState(0)
     const [currentTime, setCurrentTime] = useState(0)
 
-    const audioRef = useRef(new Audio(src))
+    const audioRef = useRef<HTMLAudioElement>()
+
+    /* assign ref value */
+    useEffect(() => {
+        audioRef.current = new Audio(src)
+    }, [src])
+
+    const duration = audioRef.current?.duration ? audioRef.current.duration : 0
     const startTime = rangeMin ? rangeMin : 0
-    const { duration } = audioRef.current
 
     /* callbacks */
     const handleTimeUpdate = useCallback(() => {
-        setCurrentTime(audioRef.current.currentTime)
-        if (rangeMax) {
-            if (rangeMax && audioRef.current.currentTime >= rangeMax) {
-                audioRef.current.pause()
+        const audio = audioRef.current
+        audio && setCurrentTime(audio.currentTime)
+        if (audio && rangeMax) {
+            if (rangeMax && audio.currentTime >= rangeMax) {
+                audio.pause()
                 onEnded && onEnded()
             }
         }
@@ -61,29 +68,29 @@ export default function useAudio({
     /* effects */
     useEffect(() => {
         const audio = audioRef.current
-        if (onEnded) {
+        if (audio && onEnded) {
             audio.onended = onEnded
         }
         return () => {
-            audio.onended = null
+            if (audio) audio.onended = null
         }
     }, [onEnded])
 
     useEffect(() => {
         const audio = audioRef.current
-        if (onLoadedMetadata) {
+        if (audio && onLoadedMetadata) {
             audio.onloadedmetadata = onLoadedMetadata
         }
         return () => {
-            audio.onloadedmetadata = null
+            if (audio) audio.onloadedmetadata = null
         }
     }, [onLoadedMetadata])
 
     useEffect(() => {
         const audio = audioRef.current
-        audio.ontimeupdate = handleTimeUpdate
+        if (audio) audio.ontimeupdate = handleTimeUpdate
         return () => {
-            audio.ontimeupdate = null
+            if (audio) audio.ontimeupdate = null
         }
     }, [handleTimeUpdate])
 
@@ -93,29 +100,32 @@ export default function useAudio({
     }, [rangeMax, duration])
 
     useEffect(() => {
-        if (onError) {
-            audioRef.current.onerror = onError
+        const audio = audioRef.current
+        if (audio && onError) {
+            audio.onerror = onError
         }
     }, [onError])
 
     // 触发播放或暂停
     useEffect(() => {
-        if (isPlaying) {
-            const { currentTime } = audioRef.current
-            audioRef.current.currentTime = resetCurrentTime(
+        const audio = audioRef.current
+        if (audio && isPlaying) {
+            const { currentTime } = audio
+            audio.currentTime = resetCurrentTime(
                 currentTime,
                 startTime,
                 endTime
             )
-            audioRef.current.play()
+            audio.play()
         } else {
-            audioRef.current.pause()
+            if (audio) audio.pause()
         }
     }, [isPlaying, startTime, endTime])
 
     useEffect(() => {
-        if (restartTime !== undefined) {
-            audioRef.current.currentTime = restartTime
+        const audio = audioRef.current
+        if (audio && restartTime !== undefined) {
+            audio.currentTime = restartTime
         }
     }, [restartTime])
 

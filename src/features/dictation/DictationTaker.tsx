@@ -19,7 +19,7 @@ import DictationResult from './DictationResult'
 type Props = {
     trackId: string
     isHome: boolean
-    onFinishHomeTrack: () => void
+    onFinishHomeTrack?: () => void
 }
 
 export default function DictionTaker({
@@ -45,7 +45,7 @@ export default function DictionTaker({
     }, [track?.url, dispatch])
 
     const handleFinishHomeTrack = () => {
-        onFinishHomeTrack()
+        onFinishHomeTrack && onFinishHomeTrack()
         dispatch(setDictationStage('uninitialized'))
     }
 
@@ -78,7 +78,7 @@ export default function DictionTaker({
         <div>
             {track && (
                 <>
-                    <h2>{track.title}</h2>
+                    {isHome || <h2>{track.title}</h2>}
                     <AdvancePlayer
                         src={track.url}
                         showPlayHint={dictationStage === 'initialListen'}

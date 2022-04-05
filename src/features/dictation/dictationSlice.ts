@@ -51,11 +51,21 @@ export const dictationSlice = createSlice({
         addResult: (state, { payload }: PayloadAction<CheckResult>) => {
             state.results = [...state.results, payload]
         },
+        resetDictation: (state) => {
+            state.dictationStage = 'uninitialized'
+            state.sentenceIndex = null
+            state.results = []
+        },
     },
 })
 
-export const { setDictationStage, setSentenceIndex, setErrorInfo, addResult } =
-    dictationSlice.actions
+export const {
+    setDictationStage,
+    setSentenceIndex,
+    setErrorInfo,
+    addResult,
+    resetDictation,
+} = dictationSlice.actions
 
 /* selectors */
 

@@ -1,4 +1,5 @@
 import { emptySplitApi } from '../../app/api'
+import { RootState } from '../../app/store'
 
 type AlbumInfo = {
     id: string
@@ -27,5 +28,17 @@ export const albumApi = emptySplitApi.injectEndpoints({
         }),
     }),
 })
+
+export const selectNextTrackIndex =
+    (trackId: string, albumId?: string) => (state: RootState) => {
+        if (!albumId) return
+        const { data } =
+            albumApi.endpoints.getAlbumDetail.select(albumId)(state)
+        if (!data) return
+        const currentIndex = data.tracks.findIndex((el) => el.id === trackId)
+        if (currentIndex !== -1 && currentIndex + 1 < data.tracks.length) {
+            return currentIndex + 1
+        }
+    }
 
 export const { useGetAlbumListQuery, useGetAlbumDetailQuery } = albumApi
