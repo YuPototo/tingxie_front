@@ -103,7 +103,10 @@ export default function AudioPlayer({
         if (isPlaying) {
             pauseAudio()
         } else {
-            await playAudio()
+            if (!audio) throw Error('没有 audio element')
+            const startFrom =
+                rangeMin && audio.currentTime < rangeMin ? rangeMin : 0
+            await playAudio(startFrom)
         }
     }
 

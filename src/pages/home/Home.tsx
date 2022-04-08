@@ -4,22 +4,26 @@ import AlbumList from '../../features/albums/AlbumList'
 import DictionTaker from '../../features/dictation/DictationTaker'
 import { useGetTrackQuery } from '../../features/track/trackService'
 
-const TEST_TRACK_ID = '624719ce48a4170a63f09970'
+const HOME_TRACK_ID = process.env.REACT_APP_HOME_TRACK_ID
 
 export default function Home() {
     const [finishTestMaterial, setFinishTestMaterial] = useState(false)
 
-    useGetTrackQuery(TEST_TRACK_ID)
+    if (!HOME_TRACK_ID) {
+        throw Error('无 HOME_TRACK_ID')
+    }
+
+    useGetTrackQuery(HOME_TRACK_ID)
 
     return (
         <div className="page-container">
             {finishTestMaterial || (
-                <h1 className="mb-2 text-lg text-green-600">英语听写</h1>
+                <h1 className="mb-8 text-lg text-green-600">英语听写</h1>
             )}
 
             {finishTestMaterial || (
                 <DictionTaker
-                    trackId={TEST_TRACK_ID}
+                    trackId={HOME_TRACK_ID}
                     isHome={true}
                     onFinishHomeTrack={() => setFinishTestMaterial(true)}
                 />
