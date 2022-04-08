@@ -16,6 +16,7 @@ export default function Home() {
             {finishTestMaterial || (
                 <h1 className="mb-2 text-lg text-green-600">英语听写</h1>
             )}
+
             {finishTestMaterial || (
                 <DictionTaker
                     trackId={TEST_TRACK_ID}

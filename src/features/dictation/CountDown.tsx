@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
-const AFTER_WHOLE_WAITING_SECONDS = 2
+const AFTER_WHOLE_WAITING_SECONDS = 1
 
 type Props = {
+    className: string
     onCountDownFinish: () => void
 }
-export default function CountDown({ onCountDownFinish }: Props) {
+export default function CountDown({ className, onCountDownFinish }: Props) {
     const [seconds, setSeconds] = useState(AFTER_WHOLE_WAITING_SECONDS)
 
     /* store */
@@ -25,7 +26,7 @@ export default function CountDown({ onCountDownFinish }: Props) {
     }, [onCountDownFinish])
 
     return (
-        <div>
+        <div className={className}>
             <span className="font-bold text-green-700">{`${seconds}`}</span>
             <span>秒后开始单句听写</span>
         </div>

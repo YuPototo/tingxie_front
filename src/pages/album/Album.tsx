@@ -5,6 +5,7 @@ import Button from '../../components/Button'
 import { useGetAlbumDetailQuery } from '../../features/albums/albumService'
 import DictationTaker from '../../features/dictation/DictationTaker'
 import TrackInfo from './TrackInfo'
+import { useAppSelector } from '../../app/hooks'
 
 export default function Album() {
     const [showAlbumInfor, setShowAlbumInfo] = useState(false)
@@ -19,11 +20,22 @@ export default function Album() {
         }),
     })
 
+    const dictationStage = useAppSelector(
+        (state) => state.dictation.dictationStage
+    )
+
     const history = useHistory()
 
     return (
         <div className="page-container">
-            <h1>{albumDetail?.title}</h1>
+            <h1
+                className={clsx(
+                    { invisible: dictationStage === 'dictating' },
+                    'mb-4 text-gray-700'
+                )}
+            >
+                {albumDetail?.title}
+            </h1>
             {trackId && <DictationTaker trackId={trackId} isHome={false} />}
             {albumDetail ? (
                 !showAlbumInfor ? (

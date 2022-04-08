@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppSelector } from '../../app/hooks'
 import useAudio from '../../components/Player/useAudio'
 import getRange from '../../utils/getRange'
@@ -7,36 +7,61 @@ import { ISentence } from '../track/trackService'
 import SentenceResult from './SentenceResult'
 
 type Props = {
-    mode: 'inDictating' | 'afterDictation'
+    dictationStage: 'dictating' | 'afterDictation'
     audioSrc: string
     transcript: ISentence[]
     showSource: boolean
+    className?: string
 }
 
 const maxHeightTable = {
-    inDictating: '16',
+    dictating: '16',
     afterDictation: 'full',
 }
 
 export default function ResultBySentence({
-    mode,
+    dictationStage,
     audioSrc,
     transcript,
     showSource,
+    className,
 }: Props) {
     const [playingSentenceIndex, setPlayingSentenceIndex] = useState<
         number | null
     >(null)
 
-    const [rangeMin, rangeMax] = getRange(transcript, playingSentenceIndex)
-
-    useAudio({
+    const [audio] = useAudio({
         src: audioSrc,
-        isPlaying: playingSentenceIndex !== null,
-        rangeMin,
-        rangeMax,
+        rangeMax: getRange(transcript, playingSentenceIndex)[1],
         onEnded: () => setPlayingSentenceIndex(null),
     })
+
+    const playAudio = useCallback(
+        async (startFrom?: number) => {
+            if (!audio) throw Error('Audio 不存在')
+
+            if (startFrom !== undefined) audio.currentTime = startFrom
+
+            try {
+                audio.play()
+            } catch (e) {
+                console.log(e)
+                setPlayingSentenceIndex(null)
+            }
+        },
+        [audio]
+    )
+
+    const playSentence = (index: number) => {
+        setPlayingSentenceIndex(index)
+        const [rangeMin] = getRange(transcript, index)
+        playAudio(rangeMin)
+    }
+
+    const pausePlay = () => {
+        audio?.pause()
+        setPlayingSentenceIndex(null)
+    }
 
     const results = useAppSelector((state) => state.dictation.results)
 
@@ -44,29 +69,30 @@ export default function ResultBySentence({
 
     // 当前句子改变时，修改已经完成的句子的位置
     useEffect(() => {
-        if (mode === 'inDictating' && dictionArea.current) {
+        if (dictationStage === 'dictating' && dictionArea.current) {
             dictionArea.current.scrollTop = dictionArea.current.scrollHeight
         }
-    }, [results.length, mode])
+    }, [results.length, dictationStage])
 
-    const maxHeight = 'max-h-' + maxHeightTable[mode]
+    const maxHeight = 'max-h-' + maxHeightTable[dictationStage]
 
     return (
         <div
             ref={dictionArea}
-            className={clsx(maxHeight, 'my-2 overflow-y-auto px-4')}
+            className={clsx(className, maxHeight, 'my-2 overflow-y-auto px-4')}
         >
             {results.length > 0 &&
                 results.map((checkResult, index) => {
                     return (
                         <SentenceResult
+                            className="my-1"
                             key={index}
                             checkResult={checkResult}
                             sourceText={transcript[index]?.text}
                             showSource={showSource}
                             isPlaying={playingSentenceIndex === index}
-                            onPlay={() => setPlayingSentenceIndex(index)}
-                            onPause={() => setPlayingSentenceIndex(null)}
+                            onPlay={() => playSentence(index)}
+                            onPause={pausePlay}
                         />
                     )
                 })}

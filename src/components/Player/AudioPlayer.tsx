@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { formatTime } from '../../utils/formatTime/formatTime'
-import { PlayFill, Pause } from 'react-bootstrap-icons'
 import clsx from 'clsx'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Pause, PlayFill } from 'react-bootstrap-icons'
 import useAudio from './useAudio'
+import { formatTime } from '../../utils/formatTime/formatTime'
 
 export type PlayMode = 'whole' | 'sentence' | 'freeze'
 
@@ -15,11 +15,11 @@ type Props = {
     sentenceIndex?: number
     className?: string
     onLoadedMetadata: () => void
-    onEnded: () => void
-    onError: () => void
+    onEnded: () => void // 播放到 rangeMax 或完全播放完
+    onError: (errInfo: string) => void
 }
 
-export default function AdvancePlayer({
+export default function AudioPlayer({
     playMode,
     src,
     showPlayHint,
@@ -32,48 +32,97 @@ export default function AdvancePlayer({
     onError,
 }: Props) {
     const [isPlaying, setIsPlaying] = useState(false)
-    const [restartTime, setRestartTime] = useState<number | undefined>(
-        undefined
-    )
+    const [currentTime, setCurrentTime] = useState(0)
+    const [duration, setDuration] = useState(0)
 
+    /* useAudio */
     const handleEnded = useCallback(() => {
         setIsPlaying(false)
         onEnded()
     }, [onEnded])
 
-    const [currentTime, endTime] = useAudio({
+    const handleAudioTimeUpdate = useCallback((time: number) => {
+        setCurrentTime(time)
+    }, [])
+
+    const handleLoadedMetaData = useCallback(
+        (duration: number) => {
+            setDuration(duration)
+            onLoadedMetadata()
+        },
+        [onLoadedMetadata]
+    )
+
+    const [audio] = useAudio({
         src,
-        rangeMin,
         rangeMax,
-        isPlaying,
-        restartTime,
-        onLoadedMetadata,
+        onLoadedMetadata: handleLoadedMetaData,
         onEnded: handleEnded,
         onError,
+        onTimeUpdate: handleAudioTimeUpdate,
     })
 
-    // 句子模式下，句子改变时，自动播放
+    const playAudio = useCallback(
+        async (startFrom?: number) => {
+            if (!audio) throw Error('Audio 不存在')
+
+            if (startFrom) audio.currentTime = startFrom
+
+            try {
+                audio.play()
+                setIsPlaying(true)
+            } catch (e) {
+                onError((e as Error).toString())
+            }
+        },
+        [audio, onError]
+    )
+
+    // effect: 句子模式下，句子改变时，自动播放
     useEffect(() => {
         if (playMode === 'sentence' && sentenceIndex !== undefined) {
-            setIsPlaying(true)
+            playAudio(rangeMin || 0)
         }
-    }, [playMode, sentenceIndex])
+    }, [playMode, sentenceIndex, rangeMin, playAudio])
+
+    // effect
+    useEffect(() => {
+        setCurrentTime(0)
+        setDuration(0)
+        setIsPlaying(false)
+    }, [src])
+
+    const pauseAudio = () => {
+        if (audio) {
+            audio.pause()
+            setIsPlaying(false)
+        }
+    }
+
+    const togglePlay = async () => {
+        if (isPlaying) {
+            pauseAudio()
+        } else {
+            await playAudio()
+        }
+    }
 
     const onScrubberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = parseFloat(event.target.value)
         const rangeMinAdjust = rangeMin ? rangeMin : 0
-        setRestartTime(inputValue + rangeMinAdjust)
+        if (audio) audio.currentTime = inputValue + rangeMinAdjust
     }
 
     const minTime = rangeMin ? rangeMin : 0
     const currentValue = Math.max(currentTime - minTime, 0)
-    const displayMaxTime = endTime - minTime
+    const maxTime = rangeMax ? rangeMax : duration
+    const audioRangeMax = maxTime - minTime
 
     return (
         <div
             className={clsx(
                 className,
-                'flex content-center gap-2 rounded  py-2 pl-2 pr-4'
+                'flex content-center gap-2 rounded  py-3 pl-3 pr-4'
             )}
         >
             <button
@@ -82,7 +131,7 @@ export default function AdvancePlayer({
                     'flex items-center justify-center rounded-full p-1 text-gray-700 hover:bg-gray-100'
                 )}
                 type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={togglePlay}
             >
                 {isPlaying ? (
                     <Pause size={21} />
@@ -105,26 +154,13 @@ export default function AdvancePlayer({
                 step="0.01"
                 value={currentValue}
                 min={0}
-                max={displayMaxTime}
+                max={audioRangeMax}
                 onChange={onScrubberChange}
             />
+
             <div className="self-center text-sm text-gray-500">
-                {formatTime(currentValue)} / {formatTime(displayMaxTime)}
-            </div>
-            <div className="ml-auto self-center text-sm text-gray-500">
-                {setPlayerHint(playMode, sentenceIndex)}
+                {formatTime(currentValue)}/ {formatTime(audioRangeMax)}
             </div>
         </div>
     )
-}
-
-function setPlayerHint(playMode: PlayMode, sentenceIndex?: number): string {
-    if (playMode === 'sentence') {
-        if (sentenceIndex !== undefined) {
-            return `第${sentenceIndex + 1}句`
-        } else {
-            return ''
-        }
-    }
-    return '全文'
 }

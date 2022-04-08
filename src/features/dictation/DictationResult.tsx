@@ -4,20 +4,24 @@ import { useAppSelector } from '../../app/hooks'
 import Button from '../../components/Button'
 import { selectNextTrackIndex } from '../albums/albumService'
 import { ITrack } from '../track/trackService'
-import ResultBySentence from './ResultBySentence'
 
 type Props = {
     track: ITrack
     oneTrackOnly: boolean
+    className?: string
+    showSource: boolean
+    toggleShowSource: () => void
     onFinishHomeTrack: () => void
 }
 
 export default function DictationResult({
     track,
     oneTrackOnly,
+    className,
+    showSource,
+    toggleShowSource,
     onFinishHomeTrack,
 }: Props) {
-    const [showSource, setShowSource] = useState(false)
     const [showMoreHint, setShowMoreHint] = useState(false)
     const { albumId } = useParams<{ albumId?: string }>()
 
@@ -25,7 +29,6 @@ export default function DictationResult({
         selectNextTrackIndex(track.id, albumId)
     )
 
-    // const dispatch = useAppDispatch()
     const history = useHistory()
 
     const handleToNext = () => {
@@ -34,16 +37,9 @@ export default function DictationResult({
     }
 
     return (
-        <div className="">
-            <ResultBySentence
-                showSource={showSource}
-                audioSrc={track.url}
-                transcript={track.source}
-                mode="afterDictation"
-            />
-
-            <div className="flex items-center gap-4">
-                <Button outline onClick={() => setShowSource(!showSource)}>
+        <div className={className}>
+            <div className="mt-4 flex items-center gap-4">
+                <Button outline onClick={toggleShowSource}>
                     {showSource ? '校对结果' : '原文'}
                 </Button>
                 {oneTrackOnly && (

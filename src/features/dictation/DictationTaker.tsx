@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import {
     toBeforeDictation,
@@ -13,9 +13,11 @@ import {
 import useLoadData from './useLoadData'
 import DictatingArea from './DictatingArea'
 import CountDown from './CountDown'
-import AdvancePlayer, { PlayMode } from '../../components/Player/AdvancePlayer'
 import getRange from '../../utils/getRange'
 import DictationResult from './DictationResult'
+import clsx from 'clsx'
+import AudioPlayer, { PlayMode } from '../../components/Player/AudioPlayer'
+import ResultBySentence from './ResultBySentence'
 
 type Props = {
     trackId: string
@@ -28,13 +30,9 @@ export default function DictionTaker({
     isHome,
     onFinishHomeTrack,
 }: Props) {
+    const [showSource, setShowSource] = useState(false)
+
     const dispatch = useAppDispatch()
-
-    useEffect(() => {
-        dispatch(initDictation())
-    }, [trackId, dispatch])
-
-    const [track] = useLoadData(trackId)
 
     const dictationStage = useAppSelector(
         (state) => state.dictation.dictationStage
@@ -44,10 +42,19 @@ export default function DictionTaker({
         (state) => state.dictation.sentenceIndex
     )
 
-    const handlePlayerError = useCallback(() => {
-        dispatch(setDictationStage('error'))
-        dispatch(setErrorInfo(`听力资源加载错误, 听力链接 ${track?.url}`))
-    }, [track?.url, dispatch])
+    useEffect(() => {
+        dispatch(initDictation())
+    }, [trackId, dispatch])
+
+    const [track] = useLoadData(trackId)
+
+    const handlePlayerError = useCallback(
+        (errInfo) => {
+            dispatch(setDictationStage('error'))
+            dispatch(setErrorInfo(errInfo))
+        },
+        [dispatch]
+    )
 
     const handleFinishHomeTrack = () => {
         onFinishHomeTrack && onFinishHomeTrack()
@@ -83,8 +90,23 @@ export default function DictionTaker({
         <div>
             {track && (
                 <>
-                    {isHome || <h2>{track.title}</h2>}
-                    <AdvancePlayer
+                    {isHome || (
+                        <h2
+                            className={clsx(
+                                {
+                                    invisible: dictationStage === 'dictating',
+                                },
+                                'mb-4 text-gray-600'
+                            )}
+                        >
+                            {track.title}
+                        </h2>
+                    )}
+
+                    <AudioPlayer
+                        className={clsx({
+                            'bg-white': dictationStage === 'initialListen',
+                        })}
                         src={track.url}
                         showPlayHint={dictationStage === 'initialListen'}
                         rangeMin={rangeMin}
@@ -100,14 +122,33 @@ export default function DictionTaker({
                 </>
             )}
 
-            {dictationStage === 'loadingAudio' && <div>正在加载听力资源</div>}
-            {dictationStage === 'initialListen' && <div>先听一遍听力材料</div>}
+            {dictationStage === 'loadingAudio' && (
+                <div className="mt-6">正在加载听力资源</div>
+            )}
+            {dictationStage === 'initialListen' && (
+                <div className="mt-6">先听一遍听力材料</div>
+            )}
             {dictationStage === 'beforeDictation' && (
-                <CountDown onCountDownFinish={() => dispatch(toDictating())} />
+                <CountDown
+                    className="mt-4"
+                    onCountDownFinish={() => dispatch(toDictating())}
+                />
+            )}
+
+            {(dictationStage === 'dictating' ||
+                dictationStage === 'afterDictation') && (
+                <ResultBySentence
+                    className="mb-4"
+                    audioSrc={track.url}
+                    transcript={track.source}
+                    dictationStage={dictationStage}
+                    showSource={showSource}
+                />
             )}
 
             {dictationStage === 'dictating' && (
                 <DictatingArea
+                    className="mt-4"
                     track={track}
                     onFinish={() => dispatch(toAfterDictation())}
                 />
@@ -115,8 +156,11 @@ export default function DictionTaker({
 
             {dictationStage === 'afterDictation' && (
                 <DictationResult
+                    showSource={showSource}
+                    className="mt-4"
                     track={track}
                     oneTrackOnly={isHome}
+                    toggleShowSource={() => setShowSource(!showSource)}
                     onFinishHomeTrack={handleFinishHomeTrack}
                 />
             )}
