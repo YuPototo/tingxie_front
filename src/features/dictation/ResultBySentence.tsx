@@ -14,11 +14,6 @@ type Props = {
     className?: string
 }
 
-const maxHeightTable = {
-    dictating: '16',
-    afterDictation: 'full',
-}
-
 export default function ResultBySentence({
     dictationStage,
     audioSrc,
@@ -74,12 +69,14 @@ export default function ResultBySentence({
         }
     }, [results.length, dictationStage])
 
-    const maxHeight = 'max-h-' + maxHeightTable[dictationStage]
-
     return (
         <div
             ref={dictionArea}
-            className={clsx(className, maxHeight, 'my-2 overflow-y-auto px-4')}
+            className={clsx(
+                className,
+                { 'max-h-36': dictationStage === 'dictating' },
+                'my-2 overflow-y-auto px-4'
+            )}
         >
             {results.length > 0 &&
                 results.map((checkResult, index) => {
