@@ -25,7 +25,7 @@ export default function Home() {
                 <DictionTaker
                     trackId={HOME_TRACK_ID}
                     isHome={true}
-                    onFinishHomeTrack={() => setFinishTestMaterial(true)}
+                    onChooseOtherTrack={() => setFinishTestMaterial(true)}
                 />
             )}
             <div

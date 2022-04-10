@@ -11,10 +11,11 @@ export default function AlbumList() {
     return (
         <>
             {albums &&
-                albums.map((album) => (
+                albums.map((album, index) => (
                     <AlbumTitle
                         className="my-1 rounded p-1.5 hover:cursor-pointer hover:bg-green-50"
                         id={album.id}
+                        index={index}
                         title={album.title}
                         key={album.id}
                     />

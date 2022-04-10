@@ -22,13 +22,15 @@ import ResultBySentence from './ResultBySentence'
 type Props = {
     trackId: string
     isHome: boolean
-    onFinishHomeTrack?: () => void
+    onChooseOtherTrack?: () => void
+    onFinishDictating?: () => void
 }
 
 export default function DictionTaker({
     trackId,
     isHome,
-    onFinishHomeTrack,
+    onChooseOtherTrack,
+    onFinishDictating,
 }: Props) {
     const [showSource, setShowSource] = useState(false)
 
@@ -56,9 +58,14 @@ export default function DictionTaker({
         [dispatch]
     )
 
-    const handleFinishHomeTrack = () => {
-        onFinishHomeTrack && onFinishHomeTrack()
+    const handleChooseOtherTracks = () => {
+        onChooseOtherTrack && onChooseOtherTrack()
         dispatch(setDictationStage('uninitialized'))
+    }
+
+    const handleFinishDictating = () => {
+        onFinishDictating && onFinishDictating()
+        dispatch(toAfterDictation())
     }
 
     if (dictationStage === 'uninitialized') {
@@ -150,7 +157,7 @@ export default function DictionTaker({
                 <DictatingArea
                     className="mt-4"
                     track={track}
-                    onFinish={() => dispatch(toAfterDictation())}
+                    onFinishDictating={handleFinishDictating}
                 />
             )}
 
@@ -161,7 +168,7 @@ export default function DictionTaker({
                     track={track}
                     oneTrackOnly={isHome}
                     toggleShowSource={() => setShowSource(!showSource)}
-                    onFinishHomeTrack={handleFinishHomeTrack}
+                    onChooseOtherTracks={handleChooseOtherTracks}
                 />
             )}
         </div>

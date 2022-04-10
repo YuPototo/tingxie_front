@@ -30,8 +30,8 @@ export const albumApi = emptySplitApi.injectEndpoints({
 })
 
 export const selectNextTrackIndex =
-    (trackId: string, albumId?: string) => (state: RootState) => {
-        if (!albumId) return
+    (trackId?: string, albumId?: string) => (state: RootState) => {
+        if (!albumId || !trackId) return
         const { data } =
             albumApi.endpoints.getAlbumDetail.select(albumId)(state)
         if (!data) return

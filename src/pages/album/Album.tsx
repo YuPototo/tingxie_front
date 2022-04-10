@@ -2,7 +2,10 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import Button from '../../components/Button'
-import { useGetAlbumDetailQuery } from '../../features/albums/albumService'
+import {
+    selectNextTrackIndex,
+    useGetAlbumDetailQuery,
+} from '../../features/albums/albumService'
 import DictationTaker from '../../features/dictation/DictationTaker'
 import TrackInfo from './TrackInfo'
 import { useAppSelector } from '../../app/hooks'
@@ -23,8 +26,18 @@ export default function Album() {
     const dictationStage = useAppSelector(
         (state) => state.dictation.dictationStage
     )
+    const nextTrackIndex = useAppSelector(
+        selectNextTrackIndex(trackId, albumId)
+    )
 
     const history = useHistory()
+
+    const handleFinishDictating = () => {
+        if (!nextTrackIndex) return
+        const key = `album_${albumId}`
+        const value = `${nextTrackIndex}`
+        localStorage.setItem(key, value)
+    }
 
     return (
         <div className="page-container">
@@ -36,7 +49,13 @@ export default function Album() {
             >
                 {albumDetail?.title}
             </h1>
-            {trackId && <DictationTaker trackId={trackId} isHome={false} />}
+            {trackId && (
+                <DictationTaker
+                    trackId={trackId}
+                    isHome={false}
+                    onFinishDictating={handleFinishDictating}
+                />
+            )}
             {albumDetail ? (
                 !showAlbumInfor ? (
                     <div

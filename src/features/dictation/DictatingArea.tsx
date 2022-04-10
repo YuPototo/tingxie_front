@@ -6,9 +6,14 @@ import SentenceDictator from './SentenceDictator'
 type Props = {
     track: ITrack
     className?: string
-    onFinish: () => void
+    onFinishDictating: () => void
 }
-export default function DictatingArea({ className, track, onFinish }: Props) {
+
+export default function DictatingArea({
+    className,
+    track,
+    onFinishDictating,
+}: Props) {
     const sentenceIndex = useAppSelector(
         (state) => state.dictation.sentenceIndex
     )
@@ -25,7 +30,7 @@ export default function DictatingArea({ className, track, onFinish }: Props) {
             sentenceIndex={sentenceIndex}
             sourceText={track.source[sentenceIndex].text}
             hasNext={hasNext}
-            onFinish={onFinish}
+            onFinish={onFinishDictating}
         />
     )
 }

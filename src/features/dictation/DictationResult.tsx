@@ -11,7 +11,7 @@ type Props = {
     className?: string
     showSource: boolean
     toggleShowSource: () => void
-    onFinishHomeTrack: () => void
+    onChooseOtherTracks: () => void
 }
 
 export default function DictationResult({
@@ -20,7 +20,7 @@ export default function DictationResult({
     className,
     showSource,
     toggleShowSource,
-    onFinishHomeTrack,
+    onChooseOtherTracks,
 }: Props) {
     const [showMoreHint, setShowMoreHint] = useState(false)
     const { albumId } = useParams<{ albumId?: string }>()
@@ -43,7 +43,7 @@ export default function DictationResult({
                     {showSource ? '校对结果' : '原文'}
                 </Button>
                 {oneTrackOnly && (
-                    <Button onClick={onFinishHomeTrack}>选择其他材料</Button>
+                    <Button onClick={onChooseOtherTracks}>选择其他材料</Button>
                 )}
                 {nextTrackIndex && (
                     <Button onClick={handleToNext}>下一个听力</Button>
