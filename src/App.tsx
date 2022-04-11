@@ -6,18 +6,20 @@ import Advice from './pages/advice/Advice'
 import Home from './pages/home/Home'
 import Album from './pages/album/Album'
 import AlbumListPage from './pages/albumList/AlbumListPage'
+import Header from './components/NavHeader'
 
 function App() {
     return (
         <BrowserRouter basename="/en">
             <Toaster />
 
+            <Header />
             <div className="mx-auto min-h-screen bg-gray-200 px-4 py-4">
                 <Switch>
                     <Route exact path="/">
                         <Home />
                     </Route>
-                    <Route path="/albums/:albumId/index/:index">
+                    <Route path="/albums/:albumId">
                         <Album />
                     </Route>
                     <Route path="/advice">

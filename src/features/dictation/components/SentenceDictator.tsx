@@ -1,19 +1,19 @@
 import clsx from 'clsx'
 import React, { useState } from 'react'
-import { check, CheckResult as ICheckResult } from '../../textChecker'
+import { check, CheckResult as ICheckResult } from '../../../textChecker'
 import TextareaAutosize from 'react-textarea-autosize'
 import CheckResult from './CheckResult'
 import { CaretRightFill, Lightbulb, Search } from 'react-bootstrap-icons'
-import Button from '../../components/Button'
-import { useAppDispatch } from '../../app/hooks'
-import { addResult, setSentenceIndex } from './dictationSlice'
+import Button from '../../../components/Button'
+import { useAppDispatch } from '../../../app/hooks'
+import { addResult, setSentenceIndex } from '../dictationSlice'
 
 type Props = {
     sentenceIndex: number
     sourceText: string
     hasNext: boolean
     className?: string
-    onFinish: () => void
+    onFinish?: () => void
 }
 
 function isAllRight(checkResult: ICheckResult) {
@@ -52,7 +52,7 @@ export default function SentenceDictator({
 
     const handleFinish = () => {
         dispatch(addResult(checkResult))
-        onFinish()
+        onFinish && onFinish()
     }
 
     const placeholder = sentenceIndex === 0 ? '输入听写内容' : ''

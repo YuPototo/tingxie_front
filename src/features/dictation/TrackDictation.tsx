@@ -10,26 +10,24 @@ import {
     toAfterDictation,
     initDictation,
 } from './dictationSlice'
-import useLoadData from './useLoadData'
-import DictatingArea from './DictatingArea'
-import CountDown from './CountDown'
+import useLoadData from './hooks/useLoadData'
+import DictatingArea from './components/DictatingArea'
+import CountDown from './components/CountDown'
 import getRange from '../../utils/getRange'
-import DictationResult from './DictationResult'
+import DictationResult from './components/DictationResult'
 import clsx from 'clsx'
 import AudioPlayer, { PlayMode } from '../../components/Player/AudioPlayer'
-import ResultBySentence from './ResultBySentence'
+import ResultBySentence from './components/ResultBySentence'
 
 type Props = {
+    trackIndex: number
     trackId: string
-    isHome: boolean
-    onChooseOtherTrack?: () => void
     onFinishDictating?: () => void
 }
 
-export default function DictionTaker({
+export default function TrackDictation({
+    trackIndex,
     trackId,
-    isHome,
-    onChooseOtherTrack,
     onFinishDictating,
 }: Props) {
     const [showSource, setShowSource] = useState(false)
@@ -39,6 +37,7 @@ export default function DictionTaker({
     const dictationStage = useAppSelector(
         (state) => state.dictation.dictationStage
     )
+
     const errorInfo = useAppSelector((state) => state.dictation.errorInfo)
     const sentenceIndex = useAppSelector(
         (state) => state.dictation.sentenceIndex
@@ -57,11 +56,6 @@ export default function DictionTaker({
         },
         [dispatch]
     )
-
-    const handleChooseOtherTracks = () => {
-        onChooseOtherTrack && onChooseOtherTrack()
-        dispatch(setDictationStage('uninitialized'))
-    }
 
     const handleFinishDictating = () => {
         onFinishDictating && onFinishDictating()
@@ -97,18 +91,17 @@ export default function DictionTaker({
         <div>
             {track && (
                 <>
-                    {isHome || (
-                        <h2
-                            className={clsx(
-                                {
-                                    invisible: dictationStage === 'dictating',
-                                },
-                                'mb-4 text-gray-600'
-                            )}
-                        >
-                            {track.title}
-                        </h2>
-                    )}
+                    <h2
+                        className={clsx(
+                            {
+                                invisible: dictationStage === 'dictating',
+                            },
+                            'mb-4 text-gray-600'
+                        )}
+                    >
+                        <span className="mr-2">{trackIndex + 1}</span>
+                        {track.title}
+                    </h2>
 
                     <AudioPlayer
                         className={clsx({
@@ -166,9 +159,7 @@ export default function DictionTaker({
                     showSource={showSource}
                     className="mt-4"
                     track={track}
-                    oneTrackOnly={isHome}
                     toggleShowSource={() => setShowSource(!showSource)}
-                    onChooseOtherTracks={handleChooseOtherTracks}
                 />
             )}
         </div>

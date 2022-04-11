@@ -1,83 +1,53 @@
 import clsx from 'clsx'
 import React, { useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
-import Button from '../../components/Button'
-import {
-    selectNextTrackIndex,
-    useGetAlbumDetailQuery,
-} from '../../features/albums/albumService'
-import DictationTaker from '../../features/dictation/DictationTaker'
-import TrackInfo from './TrackInfo'
 import { useAppSelector } from '../../app/hooks'
+import Button from '../../components/Button'
+import { useGetAlbumDetailQuery } from '../../features/albums/albumService'
+import AlbumDictation from '../../features/dictation/AlbumDictation'
+import TrackInfo from './TrackInfo'
 
 export default function Album() {
     const [showAlbumInfor, setShowAlbumInfo] = useState(false)
 
-    const { albumId, index } = useParams<{ albumId: string; index: string }>()
+    const { albumId } = useParams<{ albumId: string }>()
 
     const { data: albumDetail } = useGetAlbumDetailQuery(albumId)
 
-    const { trackId } = useGetAlbumDetailQuery(albumId, {
-        selectFromResult: ({ data }) => ({
-            trackId: data?.tracks[+index].id,
-        }),
-    })
-
-    const dictationStage = useAppSelector(
-        (state) => state.dictation.dictationStage
-    )
-    const nextTrackIndex = useAppSelector(
-        selectNextTrackIndex(trackId, albumId)
-    )
-
+    const trackIndex = useAppSelector((state) => state.album.trackIndex)
     const history = useHistory()
-
-    const handleFinishDictating = () => {
-        if (!nextTrackIndex) return
-        const key = `album_${albumId}`
-        const value = `${nextTrackIndex}`
-        localStorage.setItem(key, value)
-    }
 
     return (
         <div className="page-container">
-            <h1
-                className={clsx(
-                    { invisible: dictationStage === 'dictating' },
-                    'mb-4 text-gray-700'
-                )}
-            >
-                {albumDetail?.title}
-            </h1>
-            {trackId && (
-                <DictationTaker
-                    trackId={trackId}
-                    isHome={false}
-                    onFinishDictating={handleFinishDictating}
-                />
-            )}
+            <AlbumDictation albumId={albumId} />
+
             {albumDetail ? (
                 !showAlbumInfor ? (
                     <div
-                        className="mt-20 text-gray-600 hover:cursor-pointer"
+                        className="mt-36 text-gray-600 hover:cursor-pointer"
                         onClick={() => setShowAlbumInfo(true)}
                     >
                         显示专辑信息
                     </div>
                 ) : (
-                    <div className="mt-20">
+                    <div className="mt-36">
+                        <div
+                            className="mb-10 text-green-600 hover:cursor-pointer"
+                            onClick={() => setShowAlbumInfo(false)}
+                        >
+                            隐藏专辑信息
+                        </div>
                         <h2>专辑: {albumDetail.title}</h2>
                         <div className="my-6">
                             {albumDetail.tracks.map((track, i) => (
                                 <TrackInfo
                                     className={clsx('rouneded my-1 p-2', {
                                         'font-semibold text-green-600':
-                                            i === +index,
+                                            i === +trackIndex,
                                     })}
                                     index={i}
                                     title={track.title}
                                     key={track.id}
-                                    albumId={albumId}
                                 />
                             ))}
                         </div>
@@ -96,12 +66,6 @@ export default function Album() {
                             >
                                 联系开发者
                             </span>
-                        </div>
-                        <div
-                            className="text-green-600 hover:cursor-pointer"
-                            onClick={() => setShowAlbumInfo(false)}
-                        >
-                            隐藏专辑信息
                         </div>
                     </div>
                 )

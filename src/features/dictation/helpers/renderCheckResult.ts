@@ -1,4 +1,4 @@
-import type { CheckResult, CheckWord } from '../../textChecker'
+import type { CheckResult, CheckWord } from '../../../textChecker'
 
 const MISSPELL_CSS = '"text-red-500"'
 const LACK_CSS = '"text-yellow-600"'

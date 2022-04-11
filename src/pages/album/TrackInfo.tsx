@@ -1,16 +1,16 @@
 import clsx from 'clsx'
 import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useAppDispatch } from '../../app/hooks'
+import { setTrackIndex } from '../../features/albums/albumSlice'
 
 type Props = {
     index: number
-    albumId: string
     title: string
     className?: string
 }
 
-export default function TrackInfo({ index, title, albumId, className }: Props) {
-    const history = useHistory()
+export default function TrackInfo({ index, title, className }: Props) {
+    const dispatch = useAppDispatch()
 
     return (
         <div
@@ -18,7 +18,7 @@ export default function TrackInfo({ index, title, albumId, className }: Props) {
                 className,
                 'hover:cursor-pointer hover:bg-green-100'
             )}
-            onClick={() => history.push(`/albums/${albumId}/index/${index}`)}
+            onClick={() => dispatch(setTrackIndex(index))}
         >
             {title}
         </div>

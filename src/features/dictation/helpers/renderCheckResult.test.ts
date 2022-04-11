@@ -1,4 +1,4 @@
-import { renderCheckResult, processCheckWord } from '../renderCheckResult'
+import { renderCheckResult, processCheckWord } from './renderCheckResult'
 
 describe('processCheckWord', () => {
     it('just word', () => {

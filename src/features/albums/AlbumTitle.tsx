@@ -4,21 +4,30 @@ import { useHistory } from 'react-router-dom'
 
 type Props = { id: string; title: string; index: number; className?: string }
 
-const STARTING_INDEX = 0 // 暂定从第0个开始
-
 export default function AlbumTitle({ id, title, className, index }: Props) {
     const history = useHistory()
 
     const handleToAlbum = () => {
-        const index = localStorage.getItem(`album_${id}`)
-        const startingIndex = index ? index : STARTING_INDEX
-        history.push(`/albums/${id}/index/${startingIndex}`)
+        history.push(`/albums/${id}`)
     }
     return (
         <div
-            className={clsx(className, { 'font-semibold': index === 0 })}
+            className={clsx(
+                className,
+                { 'font-semibold': index === 0 },
+                'flex items-center gap-4'
+            )}
             onClick={handleToAlbum}
         >
+            <span
+                style={{
+                    width: '5px',
+                    height: '5px',
+                    backgroundColor: '#bbb',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                }}
+            ></span>
             {title}
         </div>
     )

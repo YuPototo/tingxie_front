@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { useAppDispatch } from '../../app/hooks'
-import { ITrack, useGetTrackQuery } from '../track/trackService'
-import { setDictationStage } from './dictationSlice'
+import { useAppDispatch } from '../../../app/hooks'
+import { ITrack, useGetTrackQuery } from '../../track/trackService'
+import { setDictationStage } from '../dictationSlice'
 
 const useLoadData = (trackId: string): [ITrack | undefined] => {
     const {

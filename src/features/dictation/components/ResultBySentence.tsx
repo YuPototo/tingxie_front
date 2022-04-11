@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useAppSelector } from '../../app/hooks'
-import useAudio from '../../components/Player/useAudio'
-import getRange from '../../utils/getRange'
-import { ISentence } from '../track/trackService'
+import { useAppSelector } from '../../../app/hooks'
+import useAudio from '../../../components/Player/useAudio'
+import getRange from '../../../utils/getRange'
+import { ISentence } from '../../track/trackService'
 import SentenceResult from './SentenceResult'
 
 type Props = {

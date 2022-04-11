@@ -1,30 +1,28 @@
 import React, { useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
-import { useAppSelector } from '../../app/hooks'
-import Button from '../../components/Button'
-import { selectNextTrackIndex } from '../albums/albumService'
-import { ITrack } from '../track/trackService'
+import { useAppDispatch, useAppSelector } from '../../../app/hooks'
+import Button from '../../../components/Button'
+import { selectNextTrackIndex } from '../../albums/albumService'
+import { setTrackIndex } from '../../albums/albumSlice'
+import { ITrack } from '../../track/trackService'
 
 type Props = {
     track: ITrack
-    oneTrackOnly: boolean
-    className?: string
     showSource: boolean
+    className?: string
     toggleShowSource: () => void
-    onChooseOtherTracks: () => void
 }
 
 export default function DictationResult({
     track,
-    oneTrackOnly,
     className,
     showSource,
     toggleShowSource,
-    onChooseOtherTracks,
 }: Props) {
     const [showMoreHint, setShowMoreHint] = useState(false)
     const { albumId } = useParams<{ albumId?: string }>()
 
+    const dispatch = useAppDispatch()
     const nextTrackIndex = useAppSelector(
         selectNextTrackIndex(track.id, albumId)
     )
@@ -32,8 +30,7 @@ export default function DictationResult({
     const history = useHistory()
 
     const handleToNext = () => {
-        if (nextTrackIndex)
-            history.replace(`/albums/${albumId}/index/${nextTrackIndex}`)
+        nextTrackIndex !== undefined && dispatch(setTrackIndex(nextTrackIndex))
     }
 
     return (
@@ -42,13 +39,10 @@ export default function DictationResult({
                 <Button outline onClick={toggleShowSource}>
                     {showSource ? '校对结果' : '原文'}
                 </Button>
-                {oneTrackOnly && (
-                    <Button onClick={onChooseOtherTracks}>选择其他材料</Button>
-                )}
                 {nextTrackIndex && (
                     <Button onClick={handleToNext}>下一个听力</Button>
                 )}
-                {!oneTrackOnly && !nextTrackIndex && !showMoreHint && (
+                {!nextTrackIndex && !showMoreHint && (
                     <Button onClick={() => setShowMoreHint(true)}>
                         完成专辑
                     </Button>

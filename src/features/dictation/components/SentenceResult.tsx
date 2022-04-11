@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React from 'react'
 import { Pause, PlayFill } from 'react-bootstrap-icons'
-import { CheckResult as ICheckResult } from '../../textChecker'
+import { CheckResult as ICheckResult } from '../../../textChecker'
 import CheckResult from './CheckResult'
 
 import './sentenceResult.css'

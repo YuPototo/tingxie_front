@@ -1,12 +1,12 @@
 import React from 'react'
-import { useAppSelector } from '../../app/hooks'
-import { ITrack } from '../track/trackService'
+import { useAppSelector } from '../../../app/hooks'
+import { ITrack } from '../../track/trackService'
 import SentenceDictator from './SentenceDictator'
 
 type Props = {
     track: ITrack
     className?: string
-    onFinishDictating: () => void
+    onFinishDictating?: () => void
 }
 
 export default function DictatingArea({
