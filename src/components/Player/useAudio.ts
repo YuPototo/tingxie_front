@@ -12,7 +12,9 @@ import { useCallback, useEffect, useRef } from 'react'
 
 type HookArgs = {
     src: string
+    rangeMin?: number
     rangeMax?: number
+    repeat?: boolean
     onEnded: () => void
     onTimeUpdate?: (time: number) => void
     onLoadedMetadata?: (duration: number) => void
@@ -21,7 +23,9 @@ type HookArgs = {
 
 export default function useAudio({
     src,
+    rangeMin,
     rangeMax,
+    repeat,
     onEnded,
     onLoadedMetadata,
     onTimeUpdate,
@@ -71,8 +75,10 @@ export default function useAudio({
         if (audio)
             audio.ontimeupdate = () => {
                 onTimeUpdate && onTimeUpdate(audio.currentTime)
-                if (rangeMax) {
-                    if (audio.currentTime >= rangeMax) {
+                if (rangeMax && audio.currentTime >= rangeMax) {
+                    if (repeat) {
+                        audio.currentTime = rangeMin ? rangeMin : 0
+                    } else {
                         audio.pause()
                         endAudio()
                     }
@@ -81,7 +87,7 @@ export default function useAudio({
         return () => {
             if (audio) audio.ontimeupdate = null
         }
-    }, [rangeMax, endAudio, onTimeUpdate])
+    }, [rangeMax, endAudio, onTimeUpdate, repeat, rangeMin])
 
     // error 事件
     useEffect(() => {

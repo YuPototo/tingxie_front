@@ -67,6 +67,7 @@ export default function PilotDictation({ trackId, onFinish }: Props) {
                 onLoadedMetadata={() =>
                     dispatch(setDictationStage('dictating'))
                 }
+                showAdvanceControl={dictationStage === 'dictating'}
                 onEnded={() => console.log('不需要运行')}
                 onError={handlePlayerError}
             />

@@ -1,12 +1,13 @@
 import { cloneDeep } from 'lodash'
 import type { WordMarked } from './type'
 
-// 暂时只考虑下面的符号
+/** 判断某个单词的结尾处里是否包含标点符号或换行符号 */
 export function containsEndMark(word: string): boolean {
     const re = /[.?,;:]$|(\n)$/ // 以符号结尾，或者以换行结尾
     return re.test(word)
 }
 
+/** 把 word 转化为 wordMarked */
 export function wordToMarkedWord(word: string): WordMarked {
     if (containsEndMark(word)) {
         const re = /(?<mark>[.?,;:]?(\n)?)$/
@@ -20,6 +21,7 @@ export function wordToMarkedWord(word: string): WordMarked {
     return { word }
 }
 
+/** 把中间存在 linebreaker 的单词拆分 */
 export function splitByLineBreaker(word: string) {
     if (!word.includes('\n')) return
     const arr = word.split('\n')
@@ -27,6 +29,7 @@ export function splitByLineBreaker(word: string) {
     return arr
 }
 
+/** 把 text 变为 wordMarked array */
 export function textToWordArray(text: string): WordMarked[] {
     const arr = text.split(/[^\S\r\n]+/) // 匹配空格，但\n不算
 

@@ -115,6 +115,7 @@ export default function TrackDictation({
                         sentenceIndex={
                             sentenceIndex !== null ? sentenceIndex : undefined
                         }
+                        showAdvanceControl={dictationStage === 'dictating'}
                         onLoadedMetadata={() => dispatch(toInitialListen())}
                         onEnded={() => dispatch(toBeforeDictation())}
                         onError={handlePlayerError}

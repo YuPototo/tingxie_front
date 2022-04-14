@@ -73,6 +73,22 @@ describe('wordToMarkedWord', () => {
             markAfter: '\n',
         })
     })
+
+    it('Dr.', () => {
+        const text = 'Dr.'
+        expect(wordToMarkedWord(text)).toEqual({
+            word: 'Dr',
+            markAfter: '.',
+        })
+    })
+
+    // 技术债：当前的 interface，无法有效表示这个情况
+    // it('U.S.', () => {
+    //     const text = 'U.S.'
+    //     expect(wordToMarkedWord(text)).toEqual({
+    //         word: 'US',
+    //     })
+    // })
 })
 
 describe('textToWordArray', () => {
