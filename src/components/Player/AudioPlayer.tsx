@@ -43,11 +43,9 @@ export default function AudioPlayer({
 
     /* useAudio */
     const handleEnded = useCallback(() => {
-        if (!repeat) {
-            setIsPlaying(false)
-            onEnded()
-        }
-    }, [onEnded, repeat])
+        setIsPlaying(false)
+        onEnded()
+    }, [onEnded])
 
     const handleAudioTimeUpdate = useCallback((time: number) => {
         setCurrentTime(time)
@@ -65,7 +63,7 @@ export default function AudioPlayer({
         src,
         rangeMin,
         rangeMax,
-        repeat,
+        repeat: playMode === 'sentence' && repeat,
         onLoadedMetadata: handleLoadedMetaData,
         onEnded: handleEnded,
         onError,
@@ -76,6 +74,7 @@ export default function AudioPlayer({
         async (startFrom?: number) => {
             if (!audio) throw Error('Audio 不存在')
 
+            if (playMode !== 'sentence') audio.playbackRate = 1
             if (startFrom) audio.currentTime = startFrom
 
             try {
@@ -85,7 +84,7 @@ export default function AudioPlayer({
                 onError((e as Error).toString())
             }
         },
-        [audio, onError]
+        [audio, onError, playMode]
     )
 
     // effect: 句子模式下，句子改变时，自动播放

@@ -35,9 +35,15 @@ export default function useAudio({
 
     const endAudio = useCallback(() => {
         const audio = audioRef.current
-        if (audio) audio.currentTime = 0
-        onEnded()
-    }, [onEnded])
+
+        if (audio && repeat) {
+            audio.currentTime = rangeMin ? rangeMin : 0
+            audio.play()
+        } else {
+            if (audio) audio.currentTime = 0
+            onEnded()
+        }
+    }, [onEnded, repeat, rangeMin])
 
     // 创建 Audio
     useEffect(() => {
