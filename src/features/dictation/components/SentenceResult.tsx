@@ -1,14 +1,14 @@
 import clsx from 'clsx'
 import React from 'react'
 import { Pause, PlayFill } from 'react-bootstrap-icons'
-import { CheckResult as ICheckResult } from '../../../textChecker'
+import { CheckedResult as ICheckedResult } from '../../../textChecker'
 import CheckResult from './CheckResult'
 
 import './sentenceResult.css'
 
 type Props = {
     className?: string
-    checkResult: ICheckResult
+    checkResult: ICheckedResult
     sourceText: string
     isPlaying: boolean
     showSource: boolean

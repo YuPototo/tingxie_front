@@ -1,8 +1,8 @@
 import React from 'react'
-import type { CheckResult as ICheckResult } from '../../../textChecker'
+import type { CheckedResult as ICheckedResult } from '../../../textChecker'
 import { renderCheckResult } from '../helpers/renderCheckResult'
 
-type Props = { result: ICheckResult; className?: string }
+type Props = { result: ICheckedResult; className?: string }
 
 export default function CheckResult({ result, className }: Props) {
     const html = renderCheckResult(result)

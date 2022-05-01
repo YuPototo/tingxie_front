@@ -1,160 +1,331 @@
-import { compare, compareParts } from '../index'
-import type { WordMarked } from '../type'
+import compare from '../compare'
+import { CleanElement } from '../type'
 
-describe('compareParts', () => {
-    it('compareParts 1', () => {
-        const userWords = [{ word: 'a' }, { word: 'b' }]
-        const sourceWords = [{ word: 'a' }, { word: 'b' }]
-        expect(compareParts(userWords, sourceWords)).toBe(1)
+describe('one element case', () => {
+    it('sourceElements 为空：不可能', () => {
+        const sourceElements = [] as CleanElement[]
+
+        const userElements = [
+            {
+                sourceElement: 'hi',
+                pureElement: 'hi',
+                shouldCompare: true,
+            },
+        ]
+        expect(() => compare(userElements, sourceElements)).toThrowError()
     })
 
-    it('compareParts 2', () => {
-        const userWords = [{ word: 'a' }]
-        const sourceWords = [{ word: 'a' }, { word: 'b' }]
-        expect(compareParts(userWords, sourceWords)).toBe(0.5)
+    it('case 2: userEl 不存在，sourceEl 不可比较', () => {
+        const sourceElements = [
+            { sourceElement: '-', pureElement: '-', shouldCompare: false },
+        ]
+
+        const userElements = [] as CleanElement[]
+
+        const expectedResult = [] as CleanElement[]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
     })
 
-    it('compareParts 3', () => {
-        const userWords = [{ word: 'a' }]
-        const sourceWords: WordMarked[] = []
-        expect(compareParts(userWords, sourceWords)).toBe(0)
+    it('case 3: userElements 为空，sourceEl 可比较', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+        ]
+
+        const userElements = [] as CleanElement[]
+
+        const expectedResult = [{ text: '***', wrongType: 'lack' }]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('case 6: userEl 和 sourceEl 都不可比较', () => {
+        const sourceElements = [
+            { sourceElement: '-', pureElement: '-', shouldCompare: false },
+        ]
+
+        const userElements = [
+            { sourceElement: '-', pureElement: '-', shouldCompare: false },
+        ]
+
+        const expectedResult = [
+            {
+                text: '-',
+            },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('case 8: useEl 不可比较, sourceEl 可以比较', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+        ]
+
+        const userElements = [
+            { sourceElement: '-', pureElement: '-', shouldCompare: false },
+        ]
+
+        const expectedResult = [
+            {
+                text: '-',
+            },
+            { text: '***', wrongType: 'lack' },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('case 9.1: misspell', () => {
+        const sourceElements = [
+            { sourceElement: 'a', pureElement: 'a', shouldCompare: true },
+        ]
+
+        const userElements = [
+            { sourceElement: 'b', pureElement: 'b', shouldCompare: true },
+        ]
+
+        const expectedResult = [
+            {
+                text: 'b',
+                wrongType: 'misspell',
+            },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('case 9.2: right one', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+        ]
+
+        const userElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+        ]
+
+        const expectedResult = [
+            {
+                text: 'hi',
+            },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
     })
 })
 
-describe('compare: I love you', () => {
-    const source = [
-        { word: 'I' },
-        { word: 'love' },
-        { word: 'you', markAfter: '.' },
+describe('two elements case', () => {
+    it('two matches', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+            { sourceElement: 'you', pureElement: 'you', shouldCompare: true },
+        ]
+
+        const userElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+            { sourceElement: 'you', pureElement: 'you', shouldCompare: true },
+        ]
+
+        const expectedResult = [
+            {
+                text: 'hi',
+            },
+            {
+                text: 'you',
+            },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('empty user elements', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+            { sourceElement: 'you', pureElement: 'you', shouldCompare: true },
+        ]
+
+        const userElements = [] as CleanElement[]
+
+        const expectedResult = [
+            { text: '***', wrongType: 'lack' },
+            { text: '***', wrongType: 'lack' },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('user element lack second word', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+            { sourceElement: 'you', pureElement: 'you', shouldCompare: true },
+        ]
+
+        const userElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+        ]
+
+        const expectedResult = [
+            {
+                text: 'hi',
+            },
+            { text: '***', wrongType: 'lack' },
+        ]
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+
+    it('user element lack first word', () => {
+        const sourceElements = [
+            { sourceElement: 'hi', pureElement: 'hi', shouldCompare: true },
+            { sourceElement: 'you', pureElement: 'you', shouldCompare: true },
+        ]
+
+        const userElements = [
+            { sourceElement: 'you', pureElement: 'you', shouldCompare: true },
+        ]
+
+        const expectedResult = [
+            { text: '***', wrongType: 'lack' },
+            {
+                text: 'you',
+            },
+        ]
+
+        expect(compare(userElements, sourceElements)).toEqual(expectedResult)
+    })
+})
+
+describe('Three elements case: I love you', () => {
+    const source: CleanElement[] = [
+        { pureElement: 'i', sourceElement: 'I', shouldCompare: true },
+        { pureElement: 'love', sourceElement: 'love', shouldCompare: true },
+        { pureElement: 'you', sourceElement: 'you.', shouldCompare: true },
     ]
 
-    it('misspell', () => {
-        const userInput = [
+    it('I love u', () => {
+        const userElements = [
+            { pureElement: 'i', sourceElement: 'I', shouldCompare: true },
+            { pureElement: 'love', sourceElement: 'love', shouldCompare: true },
+            { pureElement: 'u', sourceElement: 'u.', shouldCompare: true },
+        ]
+
+        const expected = [
+            { text: 'I' },
+            { text: 'love' },
+            { text: 'u.', wrongType: 'misspell' },
+        ]
+
+        const result = compare(userElements, source)
+
+        expect(result).toEqual(expected)
+    })
+
+    it('love you', () => {
+        const userElements = [
+            { pureElement: 'love', sourceElement: 'love', shouldCompare: true },
+            { pureElement: 'you', sourceElement: 'you.', shouldCompare: true },
+        ]
+
+        const expected = [
+            { text: '***', wrongType: 'lack' },
+            { text: 'love' },
+            { text: 'you.' },
+        ]
+
+        const result = compare(userElements, source)
+
+        expect(result).toEqual(expected)
+    })
+
+    it('I love.', () => {
+        // 这里做了个减法，不再追求正确处理标点符号
+        const userElements = [
+            { pureElement: 'i', sourceElement: 'I', shouldCompare: true },
             {
-                word: 'I',
+                pureElement: 'love',
+                sourceElement: 'love.',
+                shouldCompare: true,
             },
-            { word: 'love' },
-            { word: 'u' },
         ]
 
         const expected = [
-            { word: 'I' },
-            { word: 'love' },
-            { word: 'u', wrongType: 'misspell' },
+            { text: 'I' },
+            { text: 'love.' },
+            { text: '***', wrongType: 'lack' },
         ]
 
-        const result = compare(userInput, source)
+        const result = compare(userElements, source)
 
         expect(result).toEqual(expected)
     })
 
-    it('lack at start', () => {
-        const userInput = [{ word: 'love' }, { word: 'you' }]
-
-        const expected = [
-            { word: '***', wrongType: 'lack' },
-            { word: 'love' },
-            { word: 'you' },
-        ]
-
-        const result = compare(userInput, source)
-
-        expect(result).toEqual(expected)
-    })
-
-    it('lack at the end, no mark', () => {
-        const userInput = [{ word: 'I' }, { word: 'love' }]
-
-        const expected = [
-            { word: 'I' },
-            { word: 'love' },
-            { word: '***', wrongType: 'lack' },
-        ]
-
-        const result = compare(userInput, source)
-
-        expect(result).toEqual(expected)
-    })
-
-    it('lack at the end, with mark', () => {
-        const userInput = [{ word: 'I' }, { word: 'love', markAfter: '.' }]
-        const expected = [
-            { word: 'I' },
-            { word: 'love' },
-            { word: '***', wrongType: 'lack', markAfter: '.' },
-        ]
-
-        const result = compare(userInput, source)
-
-        expect(result).toEqual(expected)
-    })
-
-    it('redundant', () => {
-        const userInput = [
-            { word: 'I' },
-            { word: 'love' },
-            { word: 'you' },
-            { word: 'too' },
+    it('I love you too', () => {
+        const userElements = [
+            { pureElement: 'i', sourceElement: 'I', shouldCompare: true },
+            {
+                pureElement: 'love',
+                sourceElement: 'love',
+                shouldCompare: true,
+            },
+            {
+                pureElement: 'you',
+                sourceElement: 'you',
+                shouldCompare: true,
+            },
+            {
+                pureElement: 'too',
+                sourceElement: 'too.',
+                shouldCompare: true,
+            },
         ]
 
         const expected = [
-            { word: 'I' },
-            { word: 'love' },
-            { word: 'you' },
-            { word: 'too', wrongType: 'redundant' },
+            { text: 'I' },
+            { text: 'love' },
+            { text: 'you' },
+            { text: 'too.', wrongType: 'redundant' },
         ]
 
-        const result = compare(userInput, source)
-
+        const result = compare(userElements, source)
         expect(result).toEqual(expected)
     })
 })
 
-describe('compare: I love you very much', () => {
-    const source = [
-        { word: 'I' },
-        { word: 'love' },
-        { word: 'you' },
-        { word: 'very' },
-        { word: 'much' },
+describe('5 elements case: I love you very much', () => {
+    const source: CleanElement[] = [
+        { pureElement: 'i', sourceElement: 'I', shouldCompare: true },
+        { pureElement: 'love', sourceElement: 'love', shouldCompare: true },
+        { pureElement: 'you', sourceElement: 'you', shouldCompare: true },
+        { pureElement: 'very', sourceElement: 'very', shouldCompare: true },
+        { pureElement: 'much', sourceElement: 'much.', shouldCompare: true },
     ]
 
-    it('case1: I loved you very', () => {
-        const userInput = [
+    it('I loved you very', () => {
+        const userElements = [
+            { pureElement: 'i', sourceElement: 'I', shouldCompare: true },
             {
-                word: 'I',
+                pureElement: 'loved',
+                sourceElement: 'loved',
+                shouldCompare: true,
             },
-            { word: 'loved' },
-            { word: 'you' },
-            { word: 'very' },
+            { pureElement: 'you', sourceElement: 'you', shouldCompare: true },
+            { pureElement: 'very', sourceElement: 'very', shouldCompare: true },
         ]
-
         const expected = [
-            { word: 'I' },
-            { word: 'loved', wrongType: 'misspell' },
-            { word: 'you' },
-            { word: 'very' },
-            { word: '***', wrongType: 'lack' },
+            { text: 'I' },
+            { text: 'loved', wrongType: 'misspell' },
+            { text: 'you' },
+            { text: 'very' },
+            { text: '***', wrongType: 'lack' },
         ]
 
-        const result = compare(userInput, source)
-
+        const result = compare(userElements, source)
         expect(result).toEqual(expected)
     })
 
-    it('case 2: love', () => {
-        const userInput = [{ word: 'love' }]
-
-        const expected = [
-            { word: '***', wrongType: 'lack' },
-            { word: 'love' },
-            { word: '***', wrongType: 'lack' },
-            { word: '***', wrongType: 'lack' },
-            { word: '***', wrongType: 'lack' },
+    it('love', () => {
+        const userElements = [
+            { pureElement: 'love', sourceElement: 'love', shouldCompare: true },
         ]
-
-        const result = compare(userInput, source)
-
+        const expected = [
+            { text: '***', wrongType: 'lack' },
+            { text: 'love' },
+            { text: '***', wrongType: 'lack' },
+            { text: '***', wrongType: 'lack' },
+            { text: '***', wrongType: 'lack' },
+        ]
+        const result = compare(userElements, source)
         expect(result).toEqual(expected)
     })
 })

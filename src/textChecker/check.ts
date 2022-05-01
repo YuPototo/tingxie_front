@@ -1,11 +1,11 @@
-import { compare } from './compare'
-import { textToWordArray } from './textToWordArray'
-import type { CheckResult } from './type'
+import cleanseElement from './cleanseElement'
+import compare from './compare'
+import splitSentence from './splitSentence'
+import type { CheckedResult } from './type'
 
-export function check(userInput: string, source: string): CheckResult {
-    const userInputMarked = textToWordArray(userInput)
-    const sourceMarked = textToWordArray(source)
-
-    const checkResult = compare(userInputMarked, sourceMarked)
+export function check(userInput: string, source: string): CheckedResult {
+    const userElements = splitSentence(userInput).map(cleanseElement)
+    const sourceElements = splitSentence(source).map(cleanseElement)
+    const checkResult = compare(userElements, sourceElements)
     return checkResult
 }

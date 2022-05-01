@@ -20,37 +20,16 @@ export default function Advice() {
             </div>
 
             <div className="my-4 text-gray-800">
-                <h3 className="font-bold">What</h3>
-                <div className="my-3">
-                    计划的功能包括：
-                    <ul className="my-2 ml-2 list-inside list-disc ">
-                        <li className="my-2">
-                            ✅ 每句播放完成后的自动暂停，供打字。
-                        </li>
-                        <li className="my-2">倍速播放</li>
-                        <li className="my-2">
-                            快捷键操作暂停、播放、前进、后退、AB点播放
-                        </li>
-                        <li className="my-2">
-                            简写模式：u 代替 you，stu 代替 student
-                        </li>
-                        <li className="my-2">自动提示专有名词</li>
-                        <li className="my-2">更智能的校对算法</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div className="my-4 text-gray-800">
                 <h3 className="font-bold">How</h3>
                 <p className="my-3">
-                    这个产品还处在测试阶段。如果有人愿意付费，我会继续添加内容和功能。
+                    这个产品还处在测试阶段。我还不确定人们真的需要这样的听写产品。
                 </p>
                 <p className="my-3">
-                    价格：暂定
-                    <span className="font-bold">5元/月</span>
+                    这个产品计划会收费：
+                    <span className="font-bold">1元/月</span>
                 </p>
                 <p className="my-3">
-                    如果你希望这个产品继续开发，请添加我的微信😊
+                    如果能收到1笔付款，我会知道人们需要这个产品，然后会继续开发。如果你非常需要这个产品，请添加我的微信😊
                 </p>
                 <img src="https://asset-cdn.riyu.love/images/qr_code.jpeg" />
             </div>

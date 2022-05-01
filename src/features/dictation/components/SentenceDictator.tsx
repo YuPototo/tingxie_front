@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import React, { useState } from 'react'
-import { check, CheckResult as ICheckResult } from '../../../textChecker'
+import { check, CheckedResult as ICheckedResult } from '../../../textChecker'
 import TextareaAutosize from 'react-textarea-autosize'
 import CheckResult from './CheckResult'
 import { CaretRightFill, Lightbulb, Search } from 'react-bootstrap-icons'
@@ -16,7 +16,7 @@ type Props = {
     onFinish?: () => void
 }
 
-function isAllRight(checkResult: ICheckResult) {
+function isAllRight(checkResult: ICheckedResult) {
     return checkResult.every((el) => !el.wrongType)
 }
 
@@ -29,7 +29,7 @@ export default function SentenceDictator({
 }: Props) {
     /* state */
     const [userInput, setUserInput] = useState('')
-    const [checkResult, setCheckResult] = useState<ICheckResult>([])
+    const [checkResult, setCheckResult] = useState<ICheckedResult>([])
     const [checked, setChecked] = useState(false)
     const [showSource, setShowSource] = useState(false)
 

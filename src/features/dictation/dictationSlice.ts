@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppThunk } from '../../app/store'
-import type { CheckResult } from '../../textChecker'
+import type { CheckedResult } from '../../textChecker'
 
 // import type { RootState } from '../../app/store'
 
@@ -19,7 +19,7 @@ export interface DictationState {
     dictationStage: DictationStage
     sentenceIndex: number | null
     errorInfo: string | null
-    results: CheckResult[]
+    results: CheckedResult[]
 }
 
 const initialState: DictationState = {
@@ -48,7 +48,7 @@ export const dictationSlice = createSlice({
         setErrorInfo: (state, { payload }: PayloadAction<string>) => {
             state.errorInfo = payload
         },
-        addResult: (state, { payload }: PayloadAction<CheckResult>) => {
+        addResult: (state, { payload }: PayloadAction<CheckedResult>) => {
             state.results = [...state.results, payload]
         },
         initDictation: (state) => {

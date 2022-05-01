@@ -1,12 +1,14 @@
-export type WordMarked = {
-    word: string;
-    markAfter?: string;
-};
-
-type WrongType = "misspell" | "redundant" | "lack";
-
-export interface CheckWord extends WordMarked {
-    wrongType?: WrongType;
+export interface CleanElement {
+    sourceElement: string // 用于拼接
+    pureElement: string // 用于校对，一定是小写
+    shouldCompare: boolean // 是否需要比较
 }
 
-export type CheckResult = CheckWord[];
+export type WrongType = 'misspell' | 'redundant' | 'lack'
+
+export interface CheckedElement {
+    text: string // 用于拼接
+    wrongType?: WrongType
+}
+
+export type CheckedResult = CheckedElement[]
