@@ -10,7 +10,7 @@ import Header from './components/NavHeader'
 
 function App() {
     return (
-        <BrowserRouter basename="/en">
+        <BrowserRouter>
             <Toaster />
 
             <Header />
