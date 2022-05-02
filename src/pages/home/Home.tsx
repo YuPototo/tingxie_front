@@ -21,13 +21,9 @@ export default function Home() {
     useEffect(() => {
         const albumId = albumProgress.getLatestAlbum()
 
-        if (albumId) {
-            if (!hasNavToAlbum) {
-                dispatch(setHasNavToAlbum(true))
-                history.push('/albums/' + albumId)
-            }
-        } else {
-            dispatch(setIsNewUser(true))
+        if (albumId && !hasNavToAlbum) {
+            dispatch(setHasNavToAlbum(true))
+            history.push('/albums/' + albumId)
         }
     }, [history, dispatch, hasNavToAlbum])
 
@@ -42,6 +38,7 @@ export default function Home() {
     const handleFinishPilot = () => {
         setFinishPilot(true)
         localStorage.setItem('userLabel', 'text')
+        dispatch(setIsNewUser(false))
         history.push('/albums')
     }
 

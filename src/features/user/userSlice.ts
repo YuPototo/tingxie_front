@@ -3,11 +3,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 // import type { RootState } from '../../app/store'
 export interface UserState {
-    isNewUser: boolean | null
+    isNewUser: boolean
 }
 
 const initialState: UserState = {
-    isNewUser: null,
+    isNewUser: true,
 }
 
 export const userSlice = createSlice({
