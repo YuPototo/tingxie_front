@@ -17,6 +17,7 @@ export default function Home() {
     const dispatch = useAppDispatch()
 
     const hasNavToAlbum = useAppSelector((state) => state.session.hasNavToAlbum)
+
     useEffect(() => {
         const albumId = albumProgress.getLatestAlbum()
 
@@ -40,6 +41,7 @@ export default function Home() {
 
     const handleFinishPilot = () => {
         setFinishPilot(true)
+        localStorage.setItem('userLabel', 'text')
         history.push('/albums')
     }
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 
@@ -7,8 +7,16 @@ import Home from './pages/home/Home'
 import Album from './pages/album/Album'
 import AlbumListPage from './pages/albumList/AlbumListPage'
 import Header from './components/NavHeader'
+import { useAppDispatch } from './app/hooks'
+import { setIsNewUser } from './features/user/userSlice'
 
 function App() {
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        const userLabel = localStorage.getItem('userLabel')
+        if (userLabel) dispatch(setIsNewUser(false))
+    }, [dispatch])
+
     return (
         <BrowserRouter>
             <Toaster />
