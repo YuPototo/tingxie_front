@@ -19,7 +19,7 @@ type AlbumId = string
 export const albumApi = emptySplitApi.injectEndpoints({
     endpoints: (build) => ({
         getAlbumList: build.query<AlbumInfo[], void>({
-            query: () => '/albums',
+            query: () => '/albums?language=en',
             transformResponse: (res: { albums: AlbumInfo[] }) => res.albums,
         }),
         getAlbumDetail: build.query<AlbumDetail, AlbumId>({
